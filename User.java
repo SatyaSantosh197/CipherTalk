@@ -1,36 +1,43 @@
 import java.math.BigInteger;
 
 public class User {
+    private String userName;
     private BigInteger encryptedMessage;
     private final RSA encryptionTechnique;
     private final KeyData PublicKeyData;
 
-    public User(int keySize) {
-        if (keySize < 1024 || keySize > 2048) {
-            throw new IllegalArgumentException("Key size must be between 1024 and 2048 bits.");
+    public User(String userName) {
+        if(CertificationAuthority.findIfUserNameAlreadyExists(userName)) {
+            throw new IllegalArgumentException("This username is taken!!");
         }
-        encryptionTechnique = new RSA(keySize);
-        PublicKeyData = new KeyData(encryptionTechnique.getPublicKey(), encryptionTechnique.getModVlaue());
+        this.userName = userName;
+        encryptionTechnique = new RSA();
+        PublicKeyData = encryptionTechnique.getPublicKey();
+        CertificationAuthority.registerPublickey(userName, PublicKeyData);
     }
 
-    public BigInteger getPublicKey(){
-        return PublicKeyData.getPublicKey();
+    public KeyData getPublicKey(){
+        return PublicKeyData;
     }
 
-    public BigInteger getModValue() {
-        return PublicKeyData.getModValue();
-    }
+    public void sendMessage(String message, String receiverUserName) {
+        KeyData receiverKeyData = CertificationAuthority.getPublicKey(receiverUserName);
 
-    public void sendMessage(String message, User user) {
-        encryptedMessage = encryptionTechnique.encrypt(message, user.getPublicKey(), user.getModValue());
-    }
+        if (receiverKeyData == null) {
+            throw new IllegalArgumentException("User with userName: " + receiverUserName + " not found");
+        }
 
-    public BigInteger getEncryptedMessage() {
-        return encryptedMessage;
+        // encryptMessage using the public key and n of the reciever
+        encryptedMessage = encryptionTechnique.encrypt(message, receiverKeyData.getPublicKey(), receiverKeyData.getModValue());
+
     }
 
     public String getDecryptedMessage(BigInteger encryptedMessage) {
         return encryptionTechnique.decrypt(encryptedMessage);
+    }
+
+    public BigInteger getEncryptedMessage() {
+        return encryptedMessage;
     }
 }
 

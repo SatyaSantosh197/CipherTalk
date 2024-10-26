@@ -1,11 +1,11 @@
 import java.math.BigInteger;
 public class KeyData {
     private final BigInteger key;
-    private final BigInteger modVal;
+    private final BigInteger modValue;
 
-    public PublicKeyData(BigInteger key, BigInteger modVal) {
+    public KeyData(BigInteger key, BigInteger modValue) {
         this.key = key;
-        this.modVal = this.modVal;
+        this.modValue = modValue;
     }
 
     public BigInteger getKey() {
@@ -13,6 +13,6 @@ public class KeyData {
     }
 
     public BigInteger getModValue() {
-        return modVal;
+        return modValue;
     }
 }

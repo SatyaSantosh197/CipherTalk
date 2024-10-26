@@ -4,19 +4,16 @@ import java.util.Random;
 class RSA {
     private BigInteger n; // n = p * q
     private BigInteger z; // z = (p-1) * (q-1)
-    private BigInteger publicKey;
-    private BigInteger privateKey;
+    private BigInteger publicKeyValue;
+    private BigInteger privateKeyValue;
+    private KeyData publicKey;
+    private KeyData privateKey;
     private final int keySize;
 
-    public RSA(int keySize) {
-
-        // Make sure that KeySize is between 1024 and 2048 bits
-        if (keySize < 1024 || keySize > 2048) {
-            throw new IllegalArgumentException("Key size must be between 1024 and 2048 bits.");
-        }
-        this.keySize = keySize;
-
+    public RSA() {
+        keySize =  2048;
         Random random = new Random();
+
         // Constructs a randomly generated positive BigInteger that is probably prime, with the specified keySize
         BigInteger p = new BigInteger(keySize / 2, 100, random);
         BigInteger q = new BigInteger(keySize / 2, 100, random);
@@ -24,8 +21,10 @@ class RSA {
         n = p.multiply(q);
         z = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
-        publicKey = new BigInteger("65537");
-        privateKey = publicKey.modInverse(z);
+        publicKeyValue = new BigInteger("65537");
+        privateKeyValue = publicKeyValue.modInverse(z);
+        publicKey = new KeyData(publicKeyValue, n);
+        privateKey = new KeyData(privateKeyValue, n);
     }
 
     public BigInteger encrypt(String message, BigInteger publicKey, BigInteger n) {
@@ -34,25 +33,21 @@ class RSA {
     }
 
     public String decrypt(BigInteger encryptedMessage) {
-        BigInteger decryptedBigInt = encryptedMessage.modPow(privateKey, n);
+        BigInteger decryptedBigInt = encryptedMessage.modPow(privateKeyValue, n);
         byte[] decryptedBytes = decryptedBigInt.toByteArray();
         return (new String(decryptedBytes));
     }
 
-    public BigInteger getPublicKey(){
-        return publicKey;
-    }
-
-    public BigInteger getModValue() {
-        return n;
-    }
-
-
-    // Methods used by the Certification Authority to Encrypt and Decrypt Public Keys
+    // Methods used by the    **Certification Authority**     to Encrypt and Decrypt Public Keys
     private BigInteger encryptPublicKey(BigInteger value) {
-        return value.modPow(privateKey, n);
+        return value.modPow(privateKeyValue, n);
     }
-    public BigInteger decryptPublicKey(BigInteger value, BigIntegr publicKey, BigInteger n) {
+    public BigInteger decryptPublicKey(BigInteger value, BigInteger publicKey, BigInteger n) {
         return value.modPow(publicKey, n);
+    }
+
+    // Methods used to get PublicKey
+    public KeyData getPublicKey() {
+        return publicKey;
     }
 }
