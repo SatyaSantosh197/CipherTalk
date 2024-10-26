@@ -2,10 +2,10 @@ import java.math.BigInteger;
 import java.util.Random;
 
 class RSA {
-    private BigInteger n;
-    private BigInteger z;
-    private BigInteger e;
-    private BigInteger d;
+    private BigInteger n; // n = p * q
+    private BigInteger z; // z = (p-1) * (q-1)
+    private BigInteger publicKey;
+    private BigInteger privateKey;
     private final int keySize;
 
     public RSA(int keySize) {
@@ -24,24 +24,35 @@ class RSA {
         n = p.multiply(q);
         z = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
-        e = new BigInteger("65537");
-        d = e.modInverse(z);
+        publicKey = new BigInteger("65537");
+        privateKey = publicKey.modInverse(z);
     }
-    public BigInteger encrypt(String message, BigInteger e, BigInteger n) {
+
+    public BigInteger encrypt(String message, BigInteger publicKey, BigInteger n) {
         BigInteger messageBigInt = new BigInteger(message.getBytes());
-        return messageBigInt.modPow(e, n);
+        return messageBigInt.modPow(publicKey, n);
     }
 
     public String decrypt(BigInteger encryptedMessage) {
-        BigInteger decryptedBigInt = encryptedMessage.modPow(d, n);
+        BigInteger decryptedBigInt = encryptedMessage.modPow(privateKey, n);
         byte[] decryptedBytes = decryptedBigInt.toByteArray();
         return (new String(decryptedBytes));
     }
 
     public BigInteger getPublicKey(){
-        return e;
+        return publicKey;
     }
+
     public BigInteger getModValue() {
         return n;
+    }
+
+
+    // Methods used by the Certification Authority to Encrypt and Decrypt Public Keys
+    private BigInteger encryptPublicKey(BigInteger value) {
+        return value.modPow(privateKey, n);
+    }
+    public BigInteger decryptPublicKey(BigInteger value, BigIntegr publicKey, BigInteger n) {
+        return value.modPow(publicKey, n);
     }
 }
