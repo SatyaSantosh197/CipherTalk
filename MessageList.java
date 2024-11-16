@@ -13,7 +13,7 @@ class MessageNode<T> {
 class MessageList<T> {
     private MessageNode<T> head;
 
-    public void addMessage(T message, String senderUserName) {
+    public void addMessageToList(T message, String senderUserName) {
         MessageNode<T> currentNode = new MessageNode<>(message, senderUserName);
         if (head == null) {
             head = currentNode;
@@ -26,12 +26,14 @@ class MessageList<T> {
         }
     }
 
-    public void displayMessages() {
-        MessageNode<T> temp = head;
-        while (temp != null) {
-            System.out.println("Sender: " + temp.senderUserName + ", Message: " + temp.message);
-            temp = temp.next;
+    public MessageList<T> getMessages() {
+        if (head == null) {
+            throw new IllegalArgumentException("No messages found");
         }
-        System.out.println();
+        return this;
+    }
+
+    public MessageNode<T> getHead() {
+        return head;
     }
 }

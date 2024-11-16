@@ -38,8 +38,8 @@ class RSA {
         return (new String(decryptedBytes));
     }
 
-    // Methods used by the    **Certification Authority**     to Encrypt and Decrypt Public Keys
-    private BigInteger encryptPublicKey(BigInteger value) {
+    // Methods used by the   ** Certification Authority **   to Encrypt and Decrypt Public Keys
+    public BigInteger encryptPublicKey(BigInteger value) {
         return value.modPow(privateKeyValue, n);
     }
     public BigInteger decryptPublicKey(BigInteger value, BigInteger publicKey, BigInteger n) {

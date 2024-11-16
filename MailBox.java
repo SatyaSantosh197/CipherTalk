@@ -14,16 +14,24 @@ public class MailBox {
 
     // Add user to MailBox with an empty MessageList
     public void addUser(String userName) {
-        hashMap.putIfAbsent(userName, new MessageList<>());
+        if(!hashMap.containsKey(userName)) {
+            hashMap.put(userName, new MessageList<>());
+        }
     }
 
+    // Add the message of the intended user into the mail-box
     public void addMessage(String receiverUserName, String senderUserName, BigInteger encryptedMessage) {
         if (hashMap.containsKey(receiverUserName)) {
-            hashMap.get(receiverUserName).addMessage(encryptedMessage, senderUserName);
+            hashMap.get(receiverUserName).addMessageToList(encryptedMessage, senderUserName);
         } else {
             MessageList<BigInteger> newMessageList = new MessageList<>();
-            newMessageList.addMessage(encryptedMessage, senderUserName);
+            newMessageList.addMessageToList(encryptedMessage, senderUserName);
             hashMap.put(receiverUserName, newMessageList);
         }
+    }
+
+    // Fetch all the messages of the user by his userName
+    public MessageList<BigInteger> getMessages(String userName) {
+        return hashMap.get(userName).getMessages();
     }
 }

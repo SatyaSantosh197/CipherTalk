@@ -1,38 +1,50 @@
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.HashMap;
 
 public class User {
     private String userName;
     private BigInteger encryptedMessage;
     private final RSA encryptionTechnique;
-    private final KeyData PublicKeyData;
-    Map<String, MessageList> sentMessages = new HashMap<>();
-    Map<String, MessageList> receivedMessages = new HashMap<>();
+    private final KeyData publicKeyData;
+    Map<String, MessageList<String>> sentMessages = new HashMap<>();
+    Map<String, MessageList<String>> receivedMessages = new HashMap<>();
 
     public User(String userName) {
-        if(CertificationAuthority.findIfUserNameAlreadyExists(userName)) {
+        if(CertificationAuthority.getInstance().findIfUserNameAlreadyExists(userName)) {
             throw new IllegalArgumentException("This username is taken!!");
         }
         this.userName = userName;
 
         encryptionTechnique = new RSA();
-        PublicKeyData = encryptionTechnique.getPublicKey();
+        publicKeyData = encryptionTechnique.getPublicKey();
 
-        CertificationAuthority.registerPublickey(userName, PublicKeyData);
+        CertificationAuthority.getInstance().registerPublicKey(userName, publicKeyData);
         MailBox.getInstance().addUser(userName);
     }
 
     private void updateSentMessages(String userName, String message) {
         if(sentMessages.containsKey(userName)) {
-            sentMessages.get(userName).addMessage(message, this.userName);
+            sentMessages.get(userName).addMessageToList(message, this.userName);
         } else {
-            MessageList newMessageList = new MessageList();
-            newMessageList.addMessage(message, this.userName);
+            MessageList<String> newMessageList = new MessageList<>();
+            newMessageList.addMessageToList(message, this.userName);
             sentMessages.put(userName, newMessageList);
         }
     }
 
+    private void updateReceivedMessages(String userName, String message) {
+        if(receivedMessages.containsKey(userName)) {
+            receivedMessages.get(userName).addMessageToList(message, this.userName);
+        } else {
+            MessageList<String> newMessageList = new MessageList<>();
+            newMessageList.addMessageToList(message, this.userName);
+            receivedMessages.put(userName, newMessageList);
+        }
+    }
+
     private KeyData getReceiverKeyData(String receiverUserName) {
-        KeyData receiverKeyData = CertificationAuthority.getPublicKey(receiverUserName);
+        KeyData receiverKeyData = CertificationAuthority.getInstance().getPublicKey(receiverUserName);
         if (receiverKeyData == null) {
             throw new IllegalArgumentException("User with userName: " + receiverUserName + " not found");
         }
@@ -54,6 +66,11 @@ public class User {
 
     public void sendMessage(String message, String receiverUserName) {
 
+        // cant send message to themselves
+        if (this.userName.equals(receiverUserName)) {
+            throw new IllegalArgumentException("You cannot send a message to yourself.");
+        }
+
         // find the receivers PublicKey
         KeyData receiverKeyData = getReceiverKeyData(receiverUserName);
 
@@ -61,12 +78,30 @@ public class User {
         updateSentMessages(receiverUserName, message);
 
         // encryptMessage using the public key and n of the reciever
-        encryptedMessage = encryptionTechnique.encrypt(message, receiverKeyData.getPublicKey(), receiverKeyData.getModValue());
+        encryptedMessage = encryptionTechnique.encrypt(message, receiverKeyData.getKey(), receiverKeyData.getModValue());
 
         // send the message to mail box
-        MailBox.addMessage(this.userName, encryptedMessage);
+        MailBox.getInstance().addMessage(receiverUserName ,this.userName, encryptedMessage);
     }
+
+    public void getMessages() {
+        MessageNode<BigInteger> currentNode = MailBox.getInstance().getMessages(this.userName).getHead();
+        if (currentNode == null) {
+            System.out.println("No messages found.");
+            return; // Graceful handling of no messages
+        }
+
+        while (currentNode != null) {
+            updateReceivedMessages(currentNode.senderUserName, getDecryptedMessage(currentNode.message));
+            System.out.println("Sender: " + currentNode.senderUserName + ", Message: " + getDecryptedMessage(currentNode.message));
+            currentNode = currentNode.next;
+        }
+        System.out.println();
+    }
+
+
 }
+
 
 
 // User A
