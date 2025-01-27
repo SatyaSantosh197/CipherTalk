@@ -28,13 +28,22 @@ class RSA {
     }
 
     public BigInteger encrypt(String message, BigInteger publicKey, BigInteger n) {
-        BigInteger messageBigInt = new BigInteger(message.getBytes());
-        return messageBigInt.modPow(publicKey, n);
+        byte[] messageBytes = message.getBytes(); // Convert message to bytes
+        BigInteger messageBigInt = new BigInteger(1, messageBytes); // Convert to BigInteger
+        return messageBigInt.modPow(publicKey, n); // Encrypt using public key
     }
 
     public String decrypt(BigInteger encryptedMessage) {
         BigInteger decryptedBigInt = encryptedMessage.modPow(privateKeyValue, n);
         byte[] decryptedBytes = decryptedBigInt.toByteArray();
+
+        // Handle leading zero in decrypted bytes
+        if (decryptedBytes[0] == 0) {
+            byte[] temp = new byte[decryptedBytes.length - 1];
+            System.arraycopy(decryptedBytes, 1, temp, 0, temp.length);
+            decryptedBytes = temp;
+        }
+
         return (new String(decryptedBytes));
     }
 
