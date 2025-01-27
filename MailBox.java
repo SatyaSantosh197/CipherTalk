@@ -32,6 +32,11 @@ public class MailBox {
 
     // Fetch all the messages of the user by his userName
     public MessageList<BigInteger> getMessages(String userName) {
-        return hashMap.get(userName).getMessages();
+        MessageList<BigInteger> messages = hashMap.get(userName);
+        if (messages == null || messages.getHead() == null) {
+            throw new IllegalArgumentException("No messages found.");
+        }
+        return messages;
     }
+
 }

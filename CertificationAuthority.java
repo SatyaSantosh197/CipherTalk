@@ -35,4 +35,8 @@ public class CertificationAuthority {
         }
         return false;
     }
+
+    public List<String> getAllUsernames() {
+        return new ArrayList<>(publicKeyMap.keySet());
+    }
 }
