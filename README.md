@@ -159,5 +159,3 @@ Ensure Telnet is installed on your system. For example:
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ---
-
-Feel free to replace `SatySantosh197` with your actual GitHub username in the clone command. Let me know if you'd like to add or modify any sections!
