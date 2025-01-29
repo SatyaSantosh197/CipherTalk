@@ -1,5 +1,3 @@
-Here is a professional and concise README file for **CipherTalk**:
-
 ---
 
 # CipherTalk
