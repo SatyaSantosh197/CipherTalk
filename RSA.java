@@ -1,3 +1,5 @@
+// ModValue: n
+
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -54,8 +56,13 @@ class RSA {
     }
 
     // Verify a signature using the public key
-    public BigInteger verifySignature(BigInteger signedValue, BigInteger publicKey, BigInteger n) {
-        return signedValue.modPow(publicKey, n);  // Decrypt using CA's public key (to verify)
+//    public BigInteger verifySignature(BigInteger signedValue, BigInteger publicKey, BigInteger n) {
+//        return signedValue.modPow(publicKey, n);  // Decrypt using CA's public key (to verify)
+//    }
+
+
+    public BigInteger verifySignature(BigInteger signedValue) {
+        return signedValue.modPow(publicKeyValue, n);
     }
 
     public KeyData getPublicKey() {

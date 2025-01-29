@@ -141,12 +141,12 @@ public class ClientHandler implements Runnable {
                 return "No messages found.";
             }
 
-            StringBuilder response = new StringBuilder("Messages for ").append(this.username).append(":\n");
+            StringBuilder response = new StringBuilder("\nMessages for ").append(this.username).append(":").append(System.lineSeparator());
             MessageNode<BigInteger> current = messages.getHead();
 
             while (current != null) {
                 String decryptedMessage = user.getDecryptedMessage(current.message);
-                response.append("From ").append(current.senderUserName).append(": ").append(decryptedMessage).append("\n");
+                response.append("From ").append(current.senderUserName).append(": ").append(decryptedMessage).append(System.lineSeparator()); // here used "OS-independent" new line insted of'\n'.
                 current = current.next;
             }
 

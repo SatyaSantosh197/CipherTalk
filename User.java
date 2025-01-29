@@ -16,7 +16,6 @@ public class User {
         encryptionTechnique = new RSA();
         publicKeyData = encryptionTechnique.getPublicKey();
 
-
         CertificationAuthority.getInstance().registerPublicKey(userName, publicKeyData);
         MailBox.getInstance().addUser(userName);
     }
