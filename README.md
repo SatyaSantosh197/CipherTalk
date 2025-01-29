@@ -4,7 +4,7 @@ Here is a professional and concise README file for **CipherTalk**:
 
 # CipherTalk
 
-CipherTalk is a secure chat application built with RSA encryption, enabling private and encrypted communication between users. This project demonstrates proficiency in Java programming, cryptographic principles, and client-server architecture.
+CipherTalk is a multi-threaded secure chat application built with RSA encryption, enabling private and encrypted communication between users. This project demonstrates proficiency in Java programming, cryptographic principles, and client-server architecture.
 
 ## Features
 
