@@ -69,7 +69,7 @@ public class CertificationAuthority {
         publicKeyMap.put(userName, new KeyData(signedPublicKey, signedModValue));
     }
 
-    // Retrieve and verify a public key
+    // Retrieve and verify a public
     public KeyData getPublicKey(String userName) {
         KeyData signedPublicKeyData = publicKeyMap.get(userName);
 
