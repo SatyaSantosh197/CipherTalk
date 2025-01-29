@@ -1,5 +1,3 @@
----
-
 # CipherTalk
 
 CipherTalk is a multi-threaded secure chat application built with RSA encryption, enabling private and encrypted communication between users. This project demonstrates proficiency in Java programming, cryptographic principles, and client-server architecture.
