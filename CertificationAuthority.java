@@ -7,33 +7,68 @@ public class CertificationAuthority {
         return instance;
     }
 
-    private final RSA encryptionTechnique = new RSA();
+    private final RSA encryptionTechnique = new RSA();  // CA's RSA key pair
     private final Map<String, KeyData> publicKeyMap = new HashMap<>();
 
+
+
+
+
+//    Work further to resolve the Error while encrypting the public key with CA's private key and decrypting it with the CA's public key!
+
+
+
+
+//    // Register public key with a digital signature
+//    public void registerPublicKey(String userName, KeyData publicKey) {
+//        BigInteger signedPublicKey = encryptionTechnique.signData(publicKey.getKey());  // Signing public key
+//        BigInteger signedModValue = encryptionTechnique.signData(publicKey.getModValue()); // Signing n
+//
+//        publicKeyMap.put(userName, new KeyData(signedPublicKey, signedModValue));
+//    }
+//
+//    // Retrieve and verify a public key
+//    public KeyData getPublicKey(String userName) {
+//        KeyData signedPublicKeyData = publicKeyMap.get(userName);
+//
+//        if (signedPublicKeyData == null) {
+//            throw new IllegalArgumentException("404, User Not Found!!");
+//        }
+//
+//        // Verify the signature using CA's public key
+//        BigInteger verifiedPublicKey = encryptionTechnique.verifySignature(
+//                signedPublicKeyData.getKey(),
+//                encryptionTechnique.getPublicKey().getKey(),
+//                encryptionTechnique.getPublicKey().getModValue()
+//        );
+//
+//        BigInteger verifiedModValue = encryptionTechnique.verifySignature(
+//                signedPublicKeyData.getModValue(),
+//                encryptionTechnique.getPublicKey().getKey(),
+//                encryptionTechnique.getPublicKey().getModValue()
+//        );
+//
+//        return new KeyData(verifiedPublicKey, verifiedModValue);
+//    }
+
+    //
     public void registerPublicKey(String userName, KeyData publicKey) {
-        BigInteger encryptedPublicKey = encryptionTechnique.encryptPublicKey(publicKey.getKey());
-        BigInteger encryptedModVal = encryptionTechnique.encryptPublicKey(publicKey.getModValue());
-        publicKeyMap.put(userName, ( new KeyData(encryptedPublicKey, encryptedModVal) ));
+        publicKeyMap.put(userName, publicKey);
     }
 
+    // Retrieve and verify a public key
     public KeyData getPublicKey(String userName) {
-        KeyData publicKeyValue = publicKeyMap.get(userName);
+        KeyData publicKeyData = publicKeyMap.get(userName);
 
-        if(publicKeyValue == null) {
+        if (publicKeyData == null) {
             throw new IllegalArgumentException("404, User Not Found!!");
         }
 
-        BigInteger decryptedPublicKey = encryptionTechnique.decryptPublicKey(publicKeyValue.getKey(), encryptionTechnique.getPublicKey().getKey(), encryptionTechnique.getPublicKey().getModValue());
-        BigInteger decryptedModValue = encryptionTechnique.decryptPublicKey(publicKeyValue.getModValue(), encryptionTechnique.getPublicKey().getKey(), encryptionTechnique.getPublicKey().getModValue());
-
-        return new KeyData(decryptedPublicKey, decryptedModValue);
+        return publicKeyData;
     }
 
     public boolean findIfUserNameAlreadyExists(String userName) {
-        if(publicKeyMap.containsKey(userName)) {
-            return true;
-        }
-        return false;
+        return publicKeyMap.containsKey(userName);
     }
 
     public List<String> getAllUsernames() {

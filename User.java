@@ -4,11 +4,8 @@ import java.util.HashMap;
 
 public class User {
     private String userName;
-    private BigInteger encryptedMessage;
     private final RSA encryptionTechnique;
     private final KeyData publicKeyData;
-    Map<String, MessageList<String>> sentMessages = new HashMap<>();
-    Map<String, MessageList<String>> receivedMessages = new HashMap<>();
 
     public User(String userName) {
         if(CertificationAuthority.getInstance().findIfUserNameAlreadyExists(userName)) {
@@ -19,28 +16,29 @@ public class User {
         encryptionTechnique = new RSA();
         publicKeyData = encryptionTechnique.getPublicKey();
 
+
         CertificationAuthority.getInstance().registerPublicKey(userName, publicKeyData);
         MailBox.getInstance().addUser(userName);
     }
 
-    private void updateSentMessages(String userName, String message) {
-        if(sentMessages.containsKey(userName)) {
-            sentMessages.get(userName).addMessageToList(message, this.userName);
-        } else {
-            MessageList<String> newMessageList = new MessageList<>();
-            newMessageList.addMessageToList(message, this.userName);
-            sentMessages.put(userName, newMessageList);
-        }
-    }
+    public void sendMessage(String message, String receiverUserName) {
 
-    private void updateReceivedMessages(String userName, String message) {
-        if(receivedMessages.containsKey(userName)) {
-            receivedMessages.get(userName).addMessageToList(message, this.userName);
-        } else {
-            MessageList<String> newMessageList = new MessageList<>();
-            newMessageList.addMessageToList(message, this.userName);
-            receivedMessages.put(userName, newMessageList);
+        // cant send message to themselves
+        if (this.userName.equals(receiverUserName)) {
+            throw new IllegalArgumentException("You cannot send a message to yourself.");
         }
+
+        // find the receiver's PublicKey
+        KeyData receiverKeyData = getReceiverKeyData(receiverUserName);
+
+        // Update this message into sent messages map (future enhancement)
+        updateSentMessages(receiverUserName, message);
+
+        // encryptMessage using the public key and n of the receiver
+        BigInteger encryptedMessage = encryptionTechnique.encrypt(message, receiverKeyData.getKey(), receiverKeyData.getModValue());
+
+        // send the message to mailbox
+        MailBox.getInstance().addMessage(receiverUserName ,this.userName, encryptedMessage);
     }
 
     private KeyData getReceiverKeyData(String receiverUserName) {
@@ -51,39 +49,14 @@ public class User {
         return receiverKeyData;
     }
 
+
+    // This is verified and it is correct: santosh
     public String getDecryptedMessage(BigInteger encryptedMessage) {
         return encryptionTechnique.decrypt(encryptedMessage);
     }
 
-    public BigInteger getEncryptedMessage() {
-        return encryptedMessage;
-    }
 
-//    public KeyData getPublicKey(){
-//        return PublicKeyData;
-//    }
-
-
-    public void sendMessage(String message, String receiverUserName) {
-
-        // cant send message to themselves
-        if (this.userName.equals(receiverUserName)) {
-            throw new IllegalArgumentException("You cannot send a message to yourself.");
-        }
-
-        // find the receivers PublicKey
-        KeyData receiverKeyData = getReceiverKeyData(receiverUserName);
-
-        // Update this message into sent messages map
-        updateSentMessages(receiverUserName, message);
-
-        // encryptMessage using the public key and n of the reciever
-        encryptedMessage = encryptionTechnique.encrypt(message, receiverKeyData.getKey(), receiverKeyData.getModValue());
-
-        // send the message to mail box
-        MailBox.getInstance().addMessage(receiverUserName ,this.userName, encryptedMessage);
-    }
-
+    // Deprecated Method used in Single Thread Version
     public void getMessages() {
         MessageNode<BigInteger> currentNode = MailBox.getInstance().getMessages(this.userName).getHead();
         if (currentNode == null) {
@@ -99,8 +72,32 @@ public class User {
         System.out.println();
     }
 
+    // Message History: this part contains the methods and data structures which handles messages sent and messages received.
+    Map<String, MessageList<String>> sentMessages = new HashMap<>();
+    Map<String, MessageList<String>> receivedMessages = new HashMap<>();
 
+    private void updateSentMessages(String receiverName, String message) {
+        if(sentMessages.containsKey(receiverName)) {
+            sentMessages.get(receiverName).addMessageToList(message, this.userName);
+        } else {
+            MessageList<String> newMessageList = new MessageList<>();
+            newMessageList.addMessageToList(message, this.userName);
+            sentMessages.put(receiverName, newMessageList);
+        }
+    }
+
+    private void updateReceivedMessages(String senderName, String message) {
+        if(receivedMessages.containsKey(senderName)) {
+            receivedMessages.get(senderName).addMessageToList(message, this.userName);
+        } else {
+            MessageList<String> newMessageList = new MessageList<>();
+            newMessageList.addMessageToList(message, this.userName);
+            receivedMessages.put(senderName, newMessageList);
+        }
+    }
 }
+
+
 
 
 
